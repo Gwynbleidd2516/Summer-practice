@@ -41,5 +41,11 @@ public class TopologicalSortStack extends TopologicalSort {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'isEnd'");
     }
+
+    @Override
+    public Boolean isBegin() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'isBegin'");
+    }
     
 }
