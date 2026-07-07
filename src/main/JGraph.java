@@ -19,8 +19,6 @@ public class JGraph extends JPanel {
     public JGraph() {
         // setBackground(Color.RED);
         setVisible(true);
-
-
     }
 
     @Override
@@ -46,7 +44,9 @@ public class JGraph extends JPanel {
                     (mVertSize + outLineSize), (mVertSize + outLineSize));
             g2.setColor(iter.mColor);
             g2.fillOval(iter.mPoint.x - mVertSize / 2, iter.mPoint.y - mVertSize / 2, mVertSize, mVertSize);
-
+            g2.setColor(new Color(iter.mColor.hashCode() ^ 0x00FFFFFF));
+            g2.drawString(Integer.toString(nodes.indexOf(iter)), iter.mPoint.x - mVertSize / 4,
+                    iter.mPoint.y + mVertSize / 4);
         }
     }
 
