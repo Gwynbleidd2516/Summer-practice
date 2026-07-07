@@ -31,7 +31,7 @@ public class JRootFrame extends JFrame {
         JButton save = new JButton("save");
         mToolBar.add(open);
         mToolBar.add(save);
-        Method[] mMethods = { Method.QUEUE, Method.STACK };
+        Method[] mMethods = { Method.QUEUE, Method.STACK, Method.NONE };
         JComboBox<Method> comboBox = new JComboBox<>(mMethods);
         comboBox.addActionListener(new ActionListener() {
             @Override
@@ -96,6 +96,8 @@ public class JRootFrame extends JFrame {
 
         setLocationRelativeTo(null);
         setVisible(true);
+
+        comboBox.setSelectedItem(Method.NONE);
     }
 
     private static JPanel createLegendItem(Color color, String text) {
@@ -134,6 +136,9 @@ public class JRootFrame extends JFrame {
             case STACK:
                 mTopologicalSort = new TopologicalSortStack(mNodes, mEdges);
                 break;
+            default:
+                mTopologicalSort = null;
+                return;
         }
         mTopologicalSort.reset();
         mTopologicalSort.init();
@@ -156,9 +161,10 @@ public class JRootFrame extends JFrame {
         m.mNodes.add(new Node(100, 100, Color.WHITE));
         m.mNodes.add(new Node(300, 100, Color.WHITE));
         m.mNodes.add(new Node(200, 250, Color.WHITE));
+        m.mNodes.add(new Node(400, 250, Color.WHITE));
 
         m.mEdges.add(new Edge(0, 1));
         m.mEdges.add(new Edge(1, 2));
-        // m.mEdges.add(new Edge(2, 0));
+        m.mEdges.add(new Edge(3, 1));
     }
 }
