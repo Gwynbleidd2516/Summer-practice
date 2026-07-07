@@ -1,21 +1,37 @@
 package src.main.Algorithms;
 
+import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Stack;
 
 import src.main.Edge;
 import src.main.Node;
 
 public class TopologicalSortStack extends TopologicalSort {
+    private enum Statement {
+        WHITE,
+        GRAY,
+        BLACK
+    }
+    
+    private ArrayList<Integer> mVisited;
+    private ArrayList<Statement> mColors;
+    private Stack<Integer> mStack;
 
     public TopologicalSortStack(ArrayList<Node> nodes, ArrayList<Edge> edges) {
         super(nodes, edges);
-        //TODO Auto-generated constructor stub
+        mVisited = new ArrayList<>(mVisited.size());
+        mColors = new ArrayList<>(mVisited.size());
+        mStack=new Stack<>();
     }
 
     @Override
     public void init() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'init'");
+        for (int i = 0; i < mNodes.size(); i++) {
+            mVisited.add(0);
+            mColors.add(Statement.WHITE);
+            mNodes.get(i).mColor = Color.WHITE;
+        }
     }
 
     @Override
@@ -47,5 +63,5 @@ public class TopologicalSortStack extends TopologicalSort {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'isBegin'");
     }
-    
+
 }
