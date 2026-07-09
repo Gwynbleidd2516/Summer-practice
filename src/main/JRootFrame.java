@@ -21,6 +21,7 @@ public class JRootFrame extends JFrame {
     JButton stepB;
     JButton stepS;
     JButton stepF;
+    Timer mPlayertimer;
     JLabel mAnswear;
 
     public JRootFrame() {
@@ -78,6 +79,28 @@ public class JRootFrame extends JFrame {
         mPlayer.add(stepB);
 
         stepS = new JButton("Stop");
+        mPlayertimer = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!mTopologicalSort.isEnd()) {
+                    mTopologicalSort.stepForward();
+                }
+                else {
+                    mPlayertimer.stop();
+                    mPlayertimer.restart();
+                }
+                mGraph.repaint();
+            }
+        });
+        stepS.addActionListener(e -> {
+            if (mPlayertimer.isRunning()) {
+                stepS.setText("Stop");
+                mPlayertimer.stop();
+            } else {
+                stepS.setText("Resume");
+                mPlayertimer.start();
+            }
+        });
         mPlayer.add(stepS);
         stepF = new JButton(">");
         stepF.addActionListener(e -> {
