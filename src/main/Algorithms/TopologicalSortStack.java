@@ -130,8 +130,15 @@ public class TopologicalSortStack extends TopologicalSort {
 
     @Override
     public Boolean isBegin() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isBegin'");
+        if (!mStack.isEmpty()) {
+            return false;
+        }
+        for (Statement st : mColors) {
+            if (st != Statement.WHITE) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }
