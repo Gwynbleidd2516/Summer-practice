@@ -115,7 +115,9 @@ public class TopologicalSortStack extends TopologicalSort {
 
     @Override
     public void reset() {
-        init();
+        mVisited.clear();
+        mStack.clear();
+        mResultStack.clear();
     }
 
     @Override
