@@ -3,6 +3,7 @@ package src.main;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.Statement;
 import java.util.ArrayList;
 
 import javax.swing.*;
@@ -17,11 +18,12 @@ public class JRootFrame extends JFrame {
     JGraph mGraph;
     JToolBar mToolBar;
     JToolBar mPlayer;
+    JButton stepB;
+    JButton stepS;
+    JButton stepF;
     JLabel mAnswear;
 
     public JRootFrame() {
-        // mTopologicalSort = new TopologicalSortQueue(mNodes, mEdges);
-        // mTopologicalSort.init();
         mGraph = new JGraph();
         mGraph.setGraph(mNodes, mEdges);
 
@@ -36,7 +38,29 @@ public class JRootFrame extends JFrame {
         comboBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                setMethod((Method) comboBox.getSelectedItem());
+                setMethod((Method) comboBox.getSelectedItem(), comboBox);
+            }
+        });
+        comboBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
+                    boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                switch (((Method) value)) {
+                    case QUEUE:
+                        setText("Queue method");
+                        break;
+                    case STACK:
+                        setText("Stack method");
+                        break;
+                    case NONE:
+                        setText("Choose method!");
+                        break;
+
+                    default:
+                        break;
+                }
+                return this;
             }
         });
         mToolBar.add(comboBox);
@@ -44,25 +68,22 @@ public class JRootFrame extends JFrame {
         mPlayer = new JToolBar();
         mPlayer.setFloatable(false);
 
-        JButton stepB = new JButton("<");
+        stepB = new JButton("<");
         stepB.addActionListener(e -> {
             if (!mTopologicalSort.isBegin()) {
                 mTopologicalSort.stepBack();
-            } else
-                mTopologicalSort.reset();
-            mGraph.repaint();
+            }
             repaint();
         });
         mPlayer.add(stepB);
 
-        JButton stepS = new JButton("Stop");
+        stepS = new JButton("Stop");
         mPlayer.add(stepS);
-        JButton stepF = new JButton(">");
+        stepF = new JButton(">");
         stepF.addActionListener(e -> {
             if (!mTopologicalSort.isEnd()) {
                 mTopologicalSort.stepForward();
             }
-            mGraph.repaint();
             repaint();
         });
         mPlayer.add(stepF);
@@ -70,7 +91,7 @@ public class JRootFrame extends JFrame {
         mAnswear = new JLabel("Result: ");
         mPlayer.add(mAnswear);
 
-        setTitle("Lessoon");
+        setTitle("Topological sort");
         setSize(new Dimension(800, 600));
         setDefaultCloseOperation(JRootFrame.EXIT_ON_CLOSE);
         setResizable(false);
@@ -128,25 +149,37 @@ public class JRootFrame extends JFrame {
         return itemPanel;
     }
 
-    public void setMethod(Method m) {
+    public void setMethod(Method m, JComboBox comboBox) {
+        mTopologicalSort = null;
         switch (m) {
             case QUEUE:
                 mTopologicalSort = new TopologicalSortQueue(mNodes, mEdges);
+                stepB.setEnabled(true);
+                stepS.setEnabled(true);
+                stepF.setEnabled(true);
+                mTopologicalSort.reset();
+                mTopologicalSort.init();
                 break;
             case STACK:
                 mTopologicalSort = new TopologicalSortStack(mNodes, mEdges);
+                stepB.setEnabled(true);
+                stepS.setEnabled(true);
+                stepF.setEnabled(true);
+                mTopologicalSort.reset();
+                mTopologicalSort.init();
                 break;
-            default:
-                mTopologicalSort = null;
-                return;
+            case NONE:
+                stepB.setEnabled(false);
+                stepS.setEnabled(false);
+                stepF.setEnabled(false);
+                break;
         }
-        mTopologicalSort.reset();
-        mTopologicalSort.init();
         mGraph.repaint();
     }
 
     @Override
     public void repaint() {
+        mGraph.repaint();
         if (!mTopologicalSort.isEnd()) {
             mAnswear.setText("Result: " + mTopologicalSort.getResult().toString());
         } else {
