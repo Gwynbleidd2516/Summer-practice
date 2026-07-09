@@ -13,16 +13,20 @@ public class TopologicalSortStack extends TopologicalSort {
         GRAY,
         BLACK
     }
-    
+
     private ArrayList<Boolean> mVisited;
     private ArrayList<Statement> mColors;
     private Stack<Integer> mStack;
+    private Stack<Integer> mResultStack;
+    private Integer mCurrentNode;
 
     public TopologicalSortStack(ArrayList<Node> nodes, ArrayList<Edge> edges) {
         super(nodes, edges);
-        mVisited = new ArrayList<>(mVisited.size());
-        mColors = new ArrayList<>(mVisited.size());
-        mStack=new Stack<>();
+        mVisited = new ArrayList<>(mNodes.size());
+        mColors = new ArrayList<>(mNodes.size());
+        mStack = new Stack<>();
+        mResultStack = new Stack<>();
+        mCurrentNode = 0;
     }
 
     @Override
@@ -36,8 +40,71 @@ public class TopologicalSortStack extends TopologicalSort {
 
     @Override
     public void stepForward() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'stepForward'");
+        boolean allBlack = true;
+        for (Statement st : mColors) {
+            if (st != Statement.BLACK) {
+                allBlack = false;
+                break;
+            }
+        }
+        if (allBlack) {
+            return;
+        }
+
+        if (mStack.isEmpty()) {
+            int start = -1;
+            for (int i = 0; i < mColors.size(); i++) {
+                if (mColors.get(i) == Statement.WHITE) {
+                    start = i;
+                    break;
+                }
+            }
+            if (start == -1) {
+                return;
+            }
+            mStack.push(start);
+            mColors.set(start, Statement.GRAY);
+            mVisited.set(start, true);
+            mNodes.get(start).mColor = Color.GRAY;
+            mCurrentNode = start;
+        } else {
+            int v = mStack.peek();
+            int next = -1;
+            for (Edge e : mEdges) {
+                if (e.u == v && mColors.get(e.v) == Statement.WHITE) {
+                    next = e.v;
+                    break;
+                }
+            }
+            if (next != -1) {
+                mStack.push(next);
+                mColors.set(next, Statement.GRAY);
+                mVisited.set(next, true);
+                mNodes.get(next).mColor = Color.GRAY;
+                mCurrentNode = next;
+            } else {
+                mColors.set(v, Statement.BLACK);
+                mNodes.get(v).mColor = Color.BLACK;
+                mStack.pop();
+                mResultStack.push(v);
+                mCurrentNode = mStack.isEmpty() ? null : mStack.peek();
+
+                if (mStack.isEmpty()) {
+                    boolean allBlackNow = true;
+                    for (Statement st : mColors) {
+                        if (st != Statement.BLACK) {
+                            allBlackNow = false;
+                            break;
+                        }
+                    }
+                    if (allBlackNow) {
+                        while (!mResultStack.isEmpty()) {
+                            mResult.add(mResultStack.pop());
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -48,14 +115,17 @@ public class TopologicalSortStack extends TopologicalSort {
 
     @Override
     public void reset() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'reset'");
+        init();
     }
 
     @Override
     public Boolean isEnd() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isEnd'");
+        for (Statement st : mColors) {
+            if (st != Statement.BLACK) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
