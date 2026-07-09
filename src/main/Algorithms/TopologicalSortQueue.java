@@ -58,17 +58,24 @@ public class TopologicalSortQueue extends TopologicalSort {
 
     @Override
     public void stepBack() {
-        // Integer u = mResult.get(mResult.size() - 1);
-        // mResult.remove(mResult.size() - 1);
-        // ((LinkedList<Integer>) mQueue).add(0, u);
-        // mNodes.get(u).mColor = Color.GRAY;
-        // for (Edge it : mEdges) {
-        //     if (it.u == u) {
-        //         mInDegree.set(it.v, mInDegree.get(it.v) + 1);
-        //         mNodes.get(it.v).mColor = Color.WHITE;
-        //         mQueue.remove(it.v);
-        //     }
-        // }
+        int u = mResult.get(mResult.size() - 1);
+        mResult.remove(mResult.size() - 1);
+
+        for (Edge edge : mEdges) {
+            if (edge.u == u) {
+                int v = edge.v;
+                int newDegree = mInDegree.get(v) + 1;
+                mInDegree.set(v, newDegree);
+
+                if (newDegree == 1) {
+                    ((LinkedList<Integer>) mQueue).removeFirstOccurrence(v);
+                    mNodes.get(v).mColor = Color.WHITE;
+                }
+            }
+        }
+
+        ((LinkedList<Integer>) mQueue).addFirst(u);
+        mNodes.get(u).mColor = Color.GRAY;
     }
 
     @Override
@@ -79,7 +86,7 @@ public class TopologicalSortQueue extends TopologicalSort {
 
     @Override
     public Boolean isEnd() {
-        return mQueue.isEmpty() && mResult.size() == mNodes.size();
+        return mResult.size() == mNodes.size();
     }
 
     @Override
