@@ -14,7 +14,7 @@ public class TopologicalSortStack extends TopologicalSort {
         BLACK
     }
     
-    private ArrayList<Integer> mVisited;
+    private ArrayList<Boolean> mVisited;
     private ArrayList<Statement> mColors;
     private Stack<Integer> mStack;
 
@@ -28,7 +28,7 @@ public class TopologicalSortStack extends TopologicalSort {
     @Override
     public void init() {
         for (int i = 0; i < mNodes.size(); i++) {
-            mVisited.add(0);
+            mVisited.add(false);
             mColors.add(Statement.WHITE);
             mNodes.get(i).mColor = Color.WHITE;
         }
