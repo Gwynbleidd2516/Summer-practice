@@ -1,11 +1,17 @@
 package src.main;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 // import src.main.Algorithms.TopologicalSort;
 import src.main.Algorithms.*;
@@ -28,6 +34,20 @@ public class JRootFrame extends JFrame {
         mToolBar = new JToolBar();
         mToolBar.setFloatable(false);
         JButton open = new JButton("open");
+        open.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setFileFilter(new FileNameExtensionFilter("Text Files (*.txt)", "txt"));
+
+                int response = fileChooser.showOpenDialog(null);
+                if (response == JFileChooser.APPROVE_OPTION) {
+                    readFromFile(fileChooser.getSelectedFile());
+                    mGraph.repaint();
+                }
+            }
+        });
+
         JButton save = new JButton("save");
         mToolBar.add(open);
         mToolBar.add(save);
@@ -145,6 +165,34 @@ public class JRootFrame extends JFrame {
         mGraph.repaint();
     }
 
+    public void readEdges(String[] edgeStrings) {
+    }
+
+    public void readNodes(int nodeCapasity) {
+    }
+
+    public void readFromFile(File file) {
+        ArrayList<Node> buffNodes = (ArrayList<Node>) mNodes.clone();
+        ArrayList<Edge> buffEdges = (ArrayList<Edge>) mEdges.clone();
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            mNodes.clear();
+            mEdges.clear();
+            byte[] buff = new byte[1024 * 10];
+            fileInputStream.read(buff);
+            String[] massStr = new String(buff).trim().split("\n");
+            buff = null;
+            Integer nodeSise = Integer.valueOf(massStr[0].trim());
+            readEdges(massStr);
+            readNodes(nodeSise);
+        } catch (Exception e) {
+            System.out.println(e);
+            mNodes.clear();
+            mNodes.addAll(buffNodes);
+            mEdges.clear();
+            mEdges.addAll(buffEdges);
+        }
+    }
+
     @Override
     public void repaint() {
         if (!mTopologicalSort.isEnd()) {
@@ -157,14 +205,5 @@ public class JRootFrame extends JFrame {
 
     public static void main(String args[]) {
         JRootFrame m = new JRootFrame();
-
-        m.mNodes.add(new Node(100, 100, Color.WHITE));
-        m.mNodes.add(new Node(300, 100, Color.WHITE));
-        m.mNodes.add(new Node(200, 250, Color.WHITE));
-        m.mNodes.add(new Node(400, 250, Color.WHITE));
-
-        m.mEdges.add(new Edge(0, 1));
-        m.mEdges.add(new Edge(1, 2));
-        m.mEdges.add(new Edge(3, 1));
     }
 }
