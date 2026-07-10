@@ -191,6 +191,82 @@ public class JRootFrame extends JFrame {
     }
 
     public void readNodes(int nodeCapasity) {
+        // Базовые параметры алгоритма
+        double k = 100.0; // Идеальная длина пружины
+        double c = 0.1; // Сила отталкивания
+        double temperature = 100.0;
+        final double coolingRate = 0.95;
+
+        ArrayList<Point> forces = new ArrayList<>();
+
+        // 1. Инициализация случайными координатами
+        for (int i = 0; i < nodeCapasity; i++) {
+            mNodes.add(new Node(((int) (Math.random() * mGraph.getSize().width)),
+                    ((int) (Math.random() * mGraph.getSize().height)),
+                    Color.WHITE));
+            forces.add(new Point(0, 0));
+        }
+
+        // Основной цикл симуляции
+        for (int iter = 0; iter < 100; iter++) {
+            // Очистка сил
+            for (int i = 0; i < nodeCapasity; i++) {
+                forces.get(i).setLocation(0, 0);
+            }
+
+            // 2. Вычисление сил отталкивания
+            for (int i = 0; i < nodeCapasity; i++) {
+                for (int j = 0; j < nodeCapasity; j++) {
+                    if (i == j)
+                        continue;
+                    Point ni = mNodes.get(i).mPoint;
+                    Point nj = mNodes.get(j).mPoint;
+
+                    double dx = ni.x - nj.x;
+                    double dy = ni.y - nj.y;
+                    double dist = Math.max(0.01, Math.hypot(dx, dy));
+
+                    // Закон Кулона с инверсией
+                    double repForce = (c * k * k) / dist;
+
+                    forces.get(i).x += (dx / dist) * repForce;
+                    forces.get(i).y += (dy / dist) * repForce;
+                }
+            }
+
+            // 3. Вычисление сил притяжения
+            for (Edge edge : mEdges) {
+                Point nu = mNodes.get(edge.u).mPoint;
+                Point nv = mNodes.get(edge.v).mPoint;
+
+                double dx = nu.x - nv.x;
+                double dy = nu.y - nv.y;
+                double dist = Math.max(0.01, Math.hypot(dx, dy));
+
+                // Закон Гука
+                double attForce = (dist * dist) / k;
+
+                forces.get(edge.u).x -= (dx / dist) * attForce;
+                forces.get(edge.u).y -= (dy / dist) * attForce;
+                forces.get(edge.v).x += (dx / dist) * attForce;
+                forces.get(edge.v).y += (dy / dist) * attForce;
+            }
+
+            // 4. Применение сил и ограничение температурой
+            for (int i = 0; i < nodeCapasity; i++) {
+                Point node = mNodes.get(i).mPoint;
+                Point force = forces.get(i);
+
+                double forceLength = Math.max(0.01, Math.hypot(force.x, force.y));
+                double step = Math.min(forceLength, temperature);
+
+                node.x += (force.x / forceLength) * step;
+                node.y += (force.y / forceLength) * step;
+            }
+
+            // 5. Охлаждение
+            temperature *= coolingRate;
+        }
     }
 
     public void readFromFile(File file) {
