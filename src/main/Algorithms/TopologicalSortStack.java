@@ -109,8 +109,68 @@ public class TopologicalSortStack extends TopologicalSort {
 
     @Override
     public void stepBack() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'stepBack'");
+        if (mStack.isEmpty()) {
+            if (!mResultStack.isEmpty()) {
+                int v = mResultStack.pop();
+                mColors.set(v, Statement.GRAY);
+                mNodes.get(v).mColor = Color.GRAY;
+                mStack.push(v);
+                mCurrentNode = v;
+                return;
+            }
+
+            if (!mResult.isEmpty()) {
+                ArrayList<Integer> temp = new ArrayList<>(mResult);
+                mResult.clear();
+
+                int v = temp.remove(0);
+                mColors.set(v, Statement.GRAY);
+                mNodes.get(v).mColor = Color.GRAY;
+                mStack.push(v);
+                mCurrentNode = v;
+
+                mResultStack.clear();
+                for (int i = temp.size() - 1; i >= 0; i--) {
+                    mResultStack.push(temp.get(i));
+                }
+                return;
+            }
+            return;
+        }
+
+        int topStack = mStack.peek();
+
+        if (!mResultStack.isEmpty()) {
+            int topResult = mResultStack.peek();
+
+            boolean hasEdge = false;
+            for (Edge e : mEdges) {
+                if (e.u == topStack && e.v == topResult) {
+                    hasEdge = true;
+                    break;
+                }
+            }
+
+            if (hasEdge) {
+                int v = mResultStack.pop();
+                mColors.set(v, Statement.GRAY);
+                mNodes.get(v).mColor = Color.GRAY;
+                mStack.push(v);
+                mCurrentNode = v;
+            } else {
+                int v = mStack.pop();
+                mColors.set(v, Statement.WHITE);
+                mNodes.get(v).mColor = Color.WHITE;
+                mVisited.set(v, false);
+                mCurrentNode = mStack.isEmpty() ? null : mStack.peek();
+            }
+        } else {
+            int v = mStack.pop();
+            mColors.set(v, Statement.WHITE);
+            mNodes.get(v).mColor = Color.WHITE;
+            mVisited.set(v, false);
+            mCurrentNode = mStack.isEmpty() ? null : mStack.peek();
+        }
     }
 
     @Override
