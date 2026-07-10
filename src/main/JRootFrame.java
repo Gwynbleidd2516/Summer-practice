@@ -166,6 +166,28 @@ public class JRootFrame extends JFrame {
     }
 
     public void readEdges(String[] edgeStrings) {
+        for (int i = 1; i < edgeStrings.length; i++) {
+            String[] b = edgeStrings[i].split(" ");
+            if (b.length != 2) {
+                throw new RuntimeException("Wrong syntaxis: not 2 numbers in edge");
+            }
+            mEdges.add(new Edge(Integer.parseInt(b[0].trim()), Integer.parseInt(b[1].trim())));
+        }
+        mEdges.sort(new Comparator<Edge>() {
+            @Override
+            public int compare(Edge arg0, Edge arg1) {
+                if (arg0.u > arg1.u)
+                    return 1;
+                else if (arg0.u < arg1.u)
+                    return -1;
+                else {
+                    if (arg0.v > arg1.v) {
+                        return 1;
+                    } else
+                        return -1;
+                }
+            }
+        });
     }
 
     public void readNodes(int nodeCapasity) {
