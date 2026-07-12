@@ -1,16 +1,17 @@
 package src.main;
 
 import java.awt.*;
-import java.awt.geom.Point2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 // import src.main.Algorithms.TopologicalSort;
@@ -33,7 +34,14 @@ public class JRootFrame extends JFrame {
 
         mToolBar = new JToolBar();
         mToolBar.setFloatable(false);
-        JButton open = new JButton("open");
+        JPopupMenu popupMenu = new JPopupMenu();
+
+        JButton menu = new JButton("Menu");
+        menu.addActionListener(e -> {
+            popupMenu.show(menu, 0, menu.getHeight());
+        });
+        mToolBar.add(menu);
+        JMenuItem open = new JMenuItem("Load graph");
         open.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
@@ -48,9 +56,34 @@ public class JRootFrame extends JFrame {
             }
         });
 
-        JButton save = new JButton("save");
-        mToolBar.add(open);
-        mToolBar.add(save);
+        JMenuItem save = new JMenuItem("Save state");
+        save.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setFileFilter(new FileNameExtensionFilter("Statement Files (*.stm)", "stm"));
+            int responce = fileChooser.showSaveDialog(null);
+            if (responce == JFileChooser.APPROVE_OPTION) {
+                File fileToSave = fileChooser.getSelectedFile();
+
+                // Ensure the file path ends with the proper extension if missing
+                String filePath = fileToSave.getAbsolutePath();
+                if (!filePath.toLowerCase().endsWith(".stm")) {
+                    fileToSave = new File(filePath + ".stm");
+                }
+                saveState(fileToSave);
+            }
+        });
+
+        JMenuItem loadState = new JMenuItem("Load state");
+        loadState.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setFileFilter(new FileNameExtensionFilter("Statement Files (*.stm)", "stm"));
+            int responce = fileChooser.showOpenDialog(null);
+            if (responce == JFileChooser.APPROVE_OPTION) {
+                readState(fileChooser.getSelectedFile());
+                repaint();
+            }
+        });
+
         Method[] mMethods = { Method.QUEUE, Method.STACK, Method.NONE };
         JComboBox<Method> comboBox = new JComboBox<>(mMethods);
         comboBox.addActionListener(new ActionListener() {
@@ -59,6 +92,14 @@ public class JRootFrame extends JFrame {
                 setMethod((Method) comboBox.getSelectedItem());
             }
         });
+
+        popupMenu.add(open);
+        popupMenu.add(new JSeparator());
+        popupMenu.add(save);
+        popupMenu.add(loadState);
+        popupMenu.add(new JSeparator());
+        popupMenu.add(new JMenuItem("Exit"));
+
         mToolBar.add(comboBox);
 
         mPlayer = new JToolBar();
@@ -289,6 +330,63 @@ public class JRootFrame extends JFrame {
             mEdges.clear();
             mEdges.addAll(buffEdges);
         }
+    }
+
+    public void saveState(File file) {
+        try (FileOutputStream fileOutputStream = new FileOutputStream(file);
+                ObjectOutputStream oos = new ObjectOutputStream(fileOutputStream)) {
+            oos.writeObject(mNodes);
+            oos.writeObject(mEdges);
+            oos.writeObject(((JComboBox) mToolBar.getComponent(1)).getSelectedItem());
+            if (mTopologicalSort != null) {
+                oos.writeObject(mTopologicalSort);
+            }
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    public void readState(File file) {
+        ArrayList<Node> buffNodes = (ArrayList<Node>) mNodes.clone();
+        ArrayList<Edge> buffEdges = (ArrayList<Edge>) mEdges.clone();
+        try (FileInputStream fileOutputStream = new FileInputStream(file);
+                ObjectInputStream oos = new ObjectInputStream(fileOutputStream)) {
+            mNodes.clear();
+            mEdges.clear();
+            mNodes.addAll((ArrayList<Node>) oos.readObject());
+            mEdges.addAll(((ArrayList<Edge>) oos.readObject()));
+            Method method = (Method) oos.readObject();
+            ((JComboBox) mToolBar.getComponent(1)).setSelectedItem(method);
+            switch (method) {
+                case QUEUE:
+                    mTopologicalSort = new TopologicalSortQueue(mNodes, mEdges);
+                    mTopologicalSort = ((TopologicalSortQueue) oos.readObject());
+                    break;
+                case STACK:
+                    mTopologicalSort = new TopologicalSortStack(mNodes, mEdges);
+                    mTopologicalSort = ((TopologicalSortStack) oos.readObject());
+                    break;
+                case NONE:
+                    mTopologicalSort = null;
+                    break;
+                default:
+                    throw new RuntimeException("Unknown method type!!!");
+
+            }
+
+        } catch (Exception e) {
+            System.out.println(e);
+            mNodes.clear();
+            mNodes.addAll(buffNodes);
+            mEdges.clear();
+            mEdges.addAll(buffEdges);
+            JOptionPane.showMessageDialog(this, "State is loaded unsuccessfully!", "State load",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        JOptionPane.showMessageDialog(this, "State is loaded successfully!", "State load",
+                JOptionPane.INFORMATION_MESSAGE);
     }
 
     @Override
