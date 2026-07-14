@@ -45,7 +45,7 @@ public class JRootFrame extends JFrame {
         open.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                new JLoadGraph(JRootFrame.this)
+                new JLoadGraph(JRootFrame.this);
             }
         });
 

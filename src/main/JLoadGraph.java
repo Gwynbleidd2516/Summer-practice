@@ -269,7 +269,7 @@ public class JLoadGraph extends JFrame {
                     throw new RuntimeException("The syntax is broken: Matrix[" + i + "][" + j + "] = " + num);
                 }
                 if (num == 1) {
-                    edges.add(new Edge(i, num));
+                    edges.add(new Edge(i, j));
                 }
             }
         }
