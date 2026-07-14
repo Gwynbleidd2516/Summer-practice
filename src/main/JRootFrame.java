@@ -18,8 +18,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import src.main.Algorithms.*;
 
 public class JRootFrame extends JFrame {
-    private ArrayList<Node> mNodes = new ArrayList<>();
-    private ArrayList<Edge> mEdges = new ArrayList<>();
+    ArrayList<Node> mNodes = new ArrayList<>();
+    ArrayList<Edge> mEdges = new ArrayList<>();
     TopologicalSort mTopologicalSort;
     JGraph mGraph;
     JToolBar mToolBar;
@@ -45,14 +45,7 @@ public class JRootFrame extends JFrame {
         open.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                JFileChooser fileChooser = new JFileChooser();
-                fileChooser.setFileFilter(new FileNameExtensionFilter("Text Files (*.txt)", "txt"));
-
-                int response = fileChooser.showOpenDialog(null);
-                if (response == JFileChooser.APPROVE_OPTION) {
-                    readFromFile(fileChooser.getSelectedFile());
-                    mGraph.repaint();
-                }
+                new JLoadGraph(JRootFrame.this)
             }
         });
 
