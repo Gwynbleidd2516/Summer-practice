@@ -8,16 +8,19 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JList;
+import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
-
 
 public class JGraphToolBar extends JToolBar {
     public JGraphToolBar(JRootFrame rootFrame) {
         setFloatable(false);
-        JButton open = new JButton("open");
-        JButton save = new JButton("save");
-        add(open);
-        add(save);
+        JButton menu = new JButton("Menu");
+        menu.addActionListener(e->{
+            JPopupMenu m = new JGraphPopupMenu(rootFrame);
+            m.show(menu, 0, menu.getHeight());
+        });
+        add(menu);
+        
         Method[] mMethods = { Method.QUEUE, Method.STACK, Method.NONE };
         JComboBox<Method> comboBox = new JComboBox<>(mMethods);
         comboBox.addActionListener(new ActionListener() {
