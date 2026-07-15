@@ -65,10 +65,13 @@ public class JGraphPopupMenu extends JPopupMenu {
         add(save);
         add(loadState);
         add(new JSeparator());
-        add(new JMenuItem("Exit"));
+        JMenuItem exit = new JMenuItem("Exit");
+        exit.addActionListener(e -> {
+            rootFrame.dispose();
+        });
+        add(exit);
     }
-    
-    
+
     public void saveState(File file) {
         try (FileOutputStream fileOutputStream = new FileOutputStream(file);
                 ObjectOutputStream oos = new ObjectOutputStream(fileOutputStream)) {
@@ -83,7 +86,7 @@ public class JGraphPopupMenu extends JPopupMenu {
             System.out.println(e);
         }
     }
-    
+
     public void readState(File file) {
         ArrayList<Node> buffNodes = (ArrayList<Node>) mRootFrame.mNodes.clone();
         ArrayList<Edge> buffEdges = (ArrayList<Edge>) mRootFrame.mEdges.clone();
