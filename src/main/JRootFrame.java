@@ -56,17 +56,21 @@ public class JRootFrame extends JFrame {
                 mPlayer.disable();
                 break;
         }
-        mGraph.repaint();
+        // mGraph.repaint();
+        repaint();
     }
 
     @Override
     public void repaint() {
         mGraph.repaint();
-        if (!mTopologicalSort.isEnd()) {
-            mPlayer.setResultText("Result: " + mTopologicalSort.getResult().toString());
-        } else {
-            mPlayer.setResultText("Result: " + mTopologicalSort.getResult().toString() + " Done!");
-        }
+        if (mTopologicalSort != null) {
+            if (!mTopologicalSort.isEnd()) {
+                mPlayer.setResultText("Result: " + mTopologicalSort.getResult().toString());
+            } else {
+                mPlayer.setResultText("Result: " + mTopologicalSort.getResult().toString() + " Done!");
+            }
+        } else
+            mPlayer.setResultText("Result: ");
         mPlayer.repaint();
     }
 
