@@ -1,6 +1,8 @@
 package src.main;
 
-public class Edge {
+import java.io.Serializable;
+
+public class Edge implements Serializable {
     public Integer u, v;
 
     Edge() {

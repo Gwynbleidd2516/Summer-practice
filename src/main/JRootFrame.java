@@ -8,8 +8,8 @@ import javax.swing.*;
 import src.main.Algorithms.*;
 
 public class JRootFrame extends JFrame {
-    private ArrayList<Node> mNodes = new ArrayList<>();
-    private ArrayList<Edge> mEdges = new ArrayList<>();
+    ArrayList<Node> mNodes = new ArrayList<>();
+    ArrayList<Edge> mEdges = new ArrayList<>();
     TopologicalSort mTopologicalSort;
     JGraph mGraph;
     JGraphToolBar mToolBar;
@@ -72,14 +72,5 @@ public class JRootFrame extends JFrame {
 
     public static void main(String args[]) {
         JRootFrame m = new JRootFrame();
-
-        m.mNodes.add(new Node(100, 100, Color.WHITE));
-        m.mNodes.add(new Node(300, 100, Color.WHITE));
-        m.mNodes.add(new Node(200, 250, Color.WHITE));
-        m.mNodes.add(new Node(400, 250, Color.WHITE));
-
-        m.mEdges.add(new Edge(0, 1));
-        m.mEdges.add(new Edge(1, 2));
-        m.mEdges.add(new Edge(3, 1));
     }
 }
