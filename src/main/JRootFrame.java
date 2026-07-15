@@ -48,8 +48,7 @@ public class JRootFrame extends JFrame {
         stepB.addActionListener(e -> {
             if (!mTopologicalSort.isBegin()) {
                 mTopologicalSort.stepBack();
-            } else
-                mTopologicalSort.reset();
+            }
             mGraph.repaint();
             repaint();
         });
