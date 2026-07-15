@@ -31,13 +31,10 @@ public class JPlayer extends JToolBar {
         mPlayertimer = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (!rootFrame.mTopologicalSort.isEnd()) {
+                if (!rootFrame.mTopologicalSort.isEnd())
                     rootFrame.mTopologicalSort.stepForward();
-                } else {
-                    mPlayertimer.stop();
-                    mPlayertimer.restart();
-                }
-                rootFrame.mGraph.repaint();
+
+                rootFrame.repaint();
             }
         });
         stepS.addActionListener(e -> {
@@ -55,7 +52,7 @@ public class JPlayer extends JToolBar {
             if (!rootFrame.mTopologicalSort.isEnd()) {
                 rootFrame.mTopologicalSort.stepForward();
             }
-            rootFrame.mGraph.repaint();
+            rootFrame.repaint();
         });
         add(stepF);
 
