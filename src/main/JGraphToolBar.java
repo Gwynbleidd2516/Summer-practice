@@ -20,7 +20,7 @@ public class JGraphToolBar extends JToolBar {
             m.show(menu, 0, menu.getHeight());
         });
         add(menu);
-        
+
         Method[] mMethods = { Method.QUEUE, Method.STACK, Method.NONE };
         JComboBox<Method> comboBox = new JComboBox<>(mMethods);
         comboBox.addActionListener(new ActionListener() {
@@ -52,6 +52,6 @@ public class JGraphToolBar extends JToolBar {
             }
         });
         add(comboBox);
-        // comboBox.setSelectedItem(Method.NONE);
+        comboBox.setSelectedItem(Method.NONE);
     }
 }

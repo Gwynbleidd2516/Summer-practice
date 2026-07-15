@@ -21,11 +21,11 @@ public class JRootFrame extends JFrame {
         setDefaultCloseOperation(JRootFrame.EXIT_ON_CLOSE);
         setResizable(false);
         setLayout(new BorderLayout());
-        
+
+        mPlayer = new JPlayer(this);
         mGraph = new JGraph();
         mGraph.setGraph(mNodes, mEdges);
         mToolBar = new JGraphToolBar(this);
-        mPlayer = new JPlayer(this);
 
         Container c = getContentPane();
         c.add(mGraph, BorderLayout.CENTER);
