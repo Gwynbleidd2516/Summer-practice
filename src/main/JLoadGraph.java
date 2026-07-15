@@ -11,7 +11,12 @@ import java.awt.Point;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFileChooser;
@@ -25,7 +30,6 @@ public class JLoadGraph extends JFrame {
     private enum GraphType {
         EDGE_LIST,
         ADJACENCY_MATRIX,
-        INCIDENCE_MATRIX,
         ADJACENCY_LIST
     }
 
@@ -33,7 +37,6 @@ public class JLoadGraph extends JFrame {
 
     private final String edge_list = "<html>Construct a simple collection (array/list) of all edges through breaklines with a number of nodes at the first line. Each entry in the list must contain the two endpoint vertices.</html>";
     private final String adjacency_matrix = "<html>Define a square matrix where rows and columns represent vertices. Mark 1 (or the edge weight) at the intersection if an edge exists between vertex i (row) and vertex j (column); otherwise, mark 0. For undirected graphs, the matrix is symmetric across the diagonal.</html>";
-    private final String incidence_matrix = "<html>Define a matrix where rows represent vertices and columns represent edges. For each edge column, mark 1 for the starting vertex, -1 for the ending vertex (in directed graphs), or 1 for both endpoints (in undirected graphs). Mark 0 for all other vertices.</html>";
     private final String adjacency_list = "<html>Create a list for every vertex. For each edge, add the neighboring vertex (or the edge's weight) to the list of the starting vertex. This structure efficiently stores sparse graphs by only mapping directly connected nodes.</html>";
 
     public JLoadGraph(JRootFrame frame) {
@@ -83,34 +86,6 @@ public class JLoadGraph extends JFrame {
             @Override
             public void mouseEntered(MouseEvent e) {
                 mNote.setText(adjacency_matrix);
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                mNote.setText("");
-            }
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-            }
-        });
-        menuItem.add(button);
-        button = new Button("Incidence matrix");
-        button.addActionListener(e -> {
-            loadGraph(frame, GraphType.INCIDENCE_MATRIX);
-        });
-        button.addMouseListener(new MouseListener() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                mNote.setText(incidence_matrix);
             }
 
             @Override
@@ -193,11 +168,9 @@ public class JLoadGraph extends JFrame {
                     setNodes(buffNodes, buffEdges,
                             loadAdjacencyMatrix(fileInputStream, buffEdges), rootFrame.mGraph);
                     break;
-                case INCIDENCE_MATRIX:
-                    loadIncidenceMatrix(fileInputStream, buffNodes, buffEdges);
-                    break;
                 case ADJACENCY_LIST:
-                    loadAdjacencyList(fileInputStream, buffNodes, buffEdges);
+                    setNodes(buffNodes, buffEdges,
+                            loadAdjacencyList(fileInputStream, buffEdges), rootFrame.mGraph);
                     break;
 
                 default:
@@ -261,7 +234,7 @@ public class JLoadGraph extends JFrame {
         for (int i = 0; i < nodeSize; i++) {
             String[] str = massStr[i].trim().split(" ");
             if (str.length != nodeSize) {
-                throw new RuntimeException("The matrix is broken at " + nodeSize + "line");
+                throw new RuntimeException("The matrix is broken at " + i + "line");
             }
             for (int j = 0; j < str.length; j++) {
                 Integer num = Integer.parseInt(str[j]);
@@ -276,12 +249,24 @@ public class JLoadGraph extends JFrame {
         return nodeSize;
     }
 
-    private void loadIncidenceMatrix(FileInputStream fileInputStream, ArrayList<Node> nodes, ArrayList<Edge> edges) {
+    private Integer loadAdjacencyList(FileInputStream fileInputStream, ArrayList<Edge> edges) throws Exception {
+        byte[] buff = new byte[1024 * 15];
+        fileInputStream.read(buff);
+        String[] massStr = new String(buff).trim().split("\n");
+        if (massStr.length == 0) {
+            return 0;
+        }
+        buff = null;
+        Integer nodeSize = massStr.length;
+        for (String iter : massStr) {
+            String[] list = iter.trim().split(" ");
+            Integer node = Integer.valueOf(list[0].trim());
+            for (int i = 1; i < list.length; i++) {
+                edges.add(new Edge(node, Integer.valueOf(list[i])));
+            }
+        }
 
-    }
-
-    private void loadAdjacencyList(FileInputStream fileInputStream, ArrayList<Node> nodes, ArrayList<Edge> edges) {
-
+        return nodeSize;
     }
 
     private void setNodes(ArrayList<Node> nodes, ArrayList<Edge> edges, Integer nodeCapasity, JGraph graph) {
