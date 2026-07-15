@@ -5,6 +5,9 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 
@@ -16,8 +19,48 @@ public class JGraph extends JPanel {
     private ArrayList<Edge> edges = new ArrayList<>();
     private final Integer mVertSize = 20;
 
+    private double zoomFactor = 1.0;
+    private double offsetX = 0.0;
+    private double offsetY = 0.0;
+    private Point startDrag;
+
     public JGraph() {
-        // setBackground(Color.RED);
+        addMouseWheelListener(e -> {
+            int notches = e.getWheelRotation();
+            Point mousePos = e.getPoint();
+            double oldZoom = zoomFactor;
+
+            if (notches < 0) {
+                zoomFactor *= 1.1;
+            } else {
+                zoomFactor /= 1.1;
+            }
+            zoomFactor = Math.max(0.1, Math.min(10.0, zoomFactor)); // clamp
+
+            offsetX = mousePos.x - (mousePos.x - offsetX) * (zoomFactor / oldZoom);
+            offsetY = mousePos.y - (mousePos.y - offsetY) * (zoomFactor / oldZoom);
+
+            repaint();
+        });
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                startDrag = e.getPoint();
+            }
+        });
+
+        addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                double dx = e.getX() - startDrag.x;
+                double dy = e.getY() - startDrag.y;
+                offsetX += dx;
+                offsetY += dy;
+                startDrag = e.getPoint();
+                repaint();
+            }
+        });
         setVisible(true);
     }
 
@@ -28,12 +71,25 @@ public class JGraph extends JPanel {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
 
+        AffineTransform at = new AffineTransform();
+        at.translate(offsetX, offsetY);
+        at.scale(zoomFactor, zoomFactor);
+        g2.transform(at);
+
+        g2.setColor(Color.LIGHT_GRAY);
+        int gridSpacing = 50;
+        for (int x = -2000; x < 2000; x += gridSpacing) {
+            g2.drawLine(x, -2000, x, 2000);
+        }
+        for (int y = -2000; y < 2000; y += gridSpacing) {
+            g2.drawLine(-2000, y, 2000, y);
+        }
+
         g2.setColor(Color.BLACK);
         for (Edge iter : edges) {
             Point a1 = nodes.get(iter.u).mPoint;
             Point a2 = nodes.get(iter.v).mPoint;
 
-            // g2.drawLine(a1.x, a1.y, a2.x, a2.y);
             drawArrow(g2, a1.x, a1.y, a2.x, a2.y);
         }
 
@@ -56,31 +112,24 @@ public class JGraph extends JPanel {
     }
 
     private void drawArrow(Graphics2D g2d, int x1, int y1, int x2, int y2) {
-        int arrowHeadSize = 6; // Size of the arrowhead flanks
+        int arrowHeadSize = 6;
 
-        // Calculate line angle and length
         double dx = x2 - x1;
         double dy = y2 - y1;
         double angle = Math.atan2(dy, dx);
         int len = (int) Math.sqrt(dx * dx + dy * dy);
 
-        // Backup the original transformation context
         AffineTransform oldTransform = g2d.getTransform();
 
-        // Translate origin to the starting point, then rotate to align with the target
-        // point
         g2d.translate(x1, y1);
         g2d.rotate(angle);
 
-        // Draw the shaft line horizontally from local (0,0) to (len, 0)
         g2d.drawLine(0, 0, len, 0);
 
-        // Draw the arrowhead polygon at the end of the line (len, 0)
         int[] xPoints = { len / 2, len / 2 - arrowHeadSize, len / 2 - arrowHeadSize, len / 2 };
         int[] yPoints = { 0, -arrowHeadSize, arrowHeadSize, 0 };
         g2d.fillPolygon(xPoints, yPoints, 4);
 
-        // Restore the original transformation context
         g2d.setTransform(oldTransform);
     }
 
